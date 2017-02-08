@@ -8,12 +8,7 @@
  */
 
 #include <CppUTest/TestHarness.h>
-#include "all_tests.c"
-
-extern "C"
-{
-#include "sample.h" // tested files
-}
+#include "all_tests.cpp"
 
 //START: testGroup
 TEST_GROUP(FirstTestGroup)

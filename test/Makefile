@@ -22,14 +22,14 @@ MEMFLAGS = -include $(CPPUTEST_HOME)/include/CppUTest/MemoryLeakDetectorMallocMa
 #	$(CC) -c -o sample.o sample.c $(CFLAGS) $(MEMFLAGS)
 
 # Additional compiled test program
-test: comm_nrf24l01_test.o
-	$(CPP) -o $@ comm_nrf24l01_test.o $(LDFLAGS)
+test: comm_avr_test.o
+	$(CPP) -o $@ comm_avr_test.o $(LDFLAGS)
 
-test.o: comm_nrf24l01_test.c
-	$(CPP) -c -o comm_nrf24l01_test.o comm_nrf24l01_test.c $(CPPFLAGS)  $(MEMFLAGS)
+test.o: comm_avr_test.cpp
+	$(CPP) -c -o comm_avr_test.o comm_avr_test.cpp $(CPPFLAGS)  $(MEMFLAGS)
 
 .PHONY: clean
 clean:
 	@echo "clean..."
-	rm -f comm_nrf24l01_test
-	rm -f comm_nrf24l01_test.o
+	rm -f test
+	rm -f test.o comm_avr_test.o

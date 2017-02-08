@@ -10,6 +10,7 @@
 #include <vector>
 #include <CppUTest/CommandLineTestRunner.h>
 
+/*
 int main(int argc, char** argv)
 {
     std::vector<const char*> args(argv, argv + argc);
@@ -17,4 +18,10 @@ int main(int argc, char** argv)
     args.push_back("-c"); // Colored output
 
     return RUN_ALL_TESTS(args.size(), &args[0]);
+}*/
+
+int main(int argc, char *argv[])
+{
+    CommandLineTestRunner::RunAllTests(argc, argv);
+    return 0;
 }

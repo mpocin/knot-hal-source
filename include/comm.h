@@ -50,6 +50,9 @@ int hal_comm_accept(int sockfd, uint64_t *addr);
 /* Blocking operation. Returns -ETIMEOUT */
 int hal_comm_connect(int sockfd, uint64_t *addr);
 
+/* Load keys from EEPROM. Returns -EGAIN case one or all keys do not load */
+int hal_comm_load_keys(uint64_t *addr, uint8_t key);
+
 #ifdef __cplusplus
 }
 #endif
