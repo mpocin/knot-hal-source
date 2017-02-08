@@ -24,16 +24,30 @@ TEST_GROUP(FirstTestGroup)
                 memset(output, 0xaa, sizeof output);
                 expected = "";
         }
-        
+
         // cleanup
         void teardown()
         {
-                
+
         }
-        
+
         // helper functions accessible to all test() cases in testGroup
 };
 //END: testGroup
+
+// All keys are loaded
+
+// MAC address do not exist on thing
+
+// Gateway key do not exist on thing
+
+// Size of MAC address is wrong
+
+// Size of gateway key is wrong
+
+// There is no MAC address on eeprom
+
+// There is no keys on eeprom
 
 TEST(FirstTestGroup, FirstTest)
 {
