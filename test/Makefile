@@ -1,4 +1,38 @@
-# makefile for sample cpputest
+/*
+* Copyright (c) 2016, CESAR.
+* All rights reserved.
+*
+* This software may be modified and distributed under the terms
+* of the BSD license. See the LICENSE file for details.
+*
+*/
+
+# Makefile to test all possible code with CPPUTest
+
+#Set this to @ to keep the makefile quiet
+SILENCE = @
+
+#---- Outputs ----#
+COMPONENT_NAME = hal_source_test
+
+#--- Inputs ----#
+CPP_PLATFORM = Gcc
+PROJECT_HOME_DIR = knot-hal-source/
+
+SRC_DIRS = \
+	src/hal \
+
+TEST_SRC_DIRS = \
+	test/ \
+
+INCLUDE_DIRS =\
+	$(CPPUTEST_HOME)/include\
+	include/ \
+
+CPPUTEST_WARNINGFLAGS = -Wall -Wswitch-default -Werror
+#CPPUTEST_CFLAGS = -std=c89
+CPPUTEST_CFLAGS += -Wall -Wstrict-prototypes -pedantic
+LD_LIBRARIES = -lpthread
 
 CPPUTEST_HOME = $(HOME)/Programs/cpputest-3.8
 
