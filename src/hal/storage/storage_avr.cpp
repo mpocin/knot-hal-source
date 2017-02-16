@@ -7,10 +7,10 @@
  *
  */
 #include <avr/eeprom.h>
-#include "include/avr_errno.h"
 #include <string.h>
+#include "include/avr_errno.h"
+#include "include/config.h"
 #include "include/storage.h"
-#include "knot_thing_config.h"
 
 #define UUID_SIZE		36
 #define TOKEN_SIZE		40
@@ -136,7 +136,7 @@ ssize_t hal_storage_write_end(uint8_t id, void *value, size_t len)
 		/*
 		 * The max number of configs that the Thing can register is 5
 		 */
-		if ((len > CONFIG_SIZE_UNITY * KNOT_THING_DATA_MAX) ||
+		if ((len > CONFIG_SIZE_UNITY * KNOT_THING_NUM_DATA) ||
 							(len > EEPROM_SIZE))
 			return -EINVAL;
 
@@ -215,8 +215,8 @@ ssize_t hal_storage_read_end(uint8_t id, void *value, size_t len)
 		/*
 		 * The max number of configs that the Thing can register is 5
 		 */
-		if (len > CONFIG_SIZE_UNITY * KNOT_THING_DATA_MAX)
-			len = CONFIG_SIZE_UNITY * KNOT_THING_DATA_MAX;
+		if (len > CONFIG_SIZE_UNITY * KNOT_THING_NUM_DATA)
+			len = CONFIG_SIZE_UNITY * KNOT_THING_NUM_DATA;
 
 		/*
 		 * Read the size of the config,
