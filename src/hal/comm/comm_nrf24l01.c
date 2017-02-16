@@ -23,7 +23,7 @@
 #include "include/nrf24.h"
 #include "include/comm.h"
 #include "include/time.h"
-#include "include/config.h"
+#include "knot_thing_config.h"
 #include "phy_driver.h"
 #include "phy_driver_nrf24.h"
 #include "nrf24l01_ll.h"
