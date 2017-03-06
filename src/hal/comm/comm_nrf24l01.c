@@ -18,6 +18,8 @@
 #else
 #include <errno.h>
 #include <unistd.h>
+#include "src/hal/sec/security.h"
+#include "src/hal/sec/nanoecc/ecc.h"
 #endif
 
 #include "include/nrf24.h"
@@ -33,6 +35,72 @@
 #define MGMT_SIZE 32
 #define MGMT_TIMEOUT 10
 #define RAW_TIMEOUT 60
+
+/*Hard-coded Keys*/
+
+/* key pairs labeled 3 and 4, for secp256r1 curves */
+/*Local Key Pair*/
+uint8_t local_priv[NUM_ECC_DIGITS] = {
+  0xA8, 0x78, 0x51, 0x3A, 0x5D, 0xDA, 0x9C, 0x33, \
+    0x35, 0xB4, 0x05, 0x06, 0xE1, 0x1E, 0x88, 0xD9, \
+    0x52, 0xBF, 0x4F, 0x98, 0xF3, 0xB3, 0x0E, 0xB8, \
+  0x64, 0x35, 0x0F, 0x9D, 0xB7, 0x35, 0x0C, 0xAE \
+};
+EccPoint local_pub= {
+  {0x1F, 0x37, 0x66, 0xC9, 0x8A, 0xDB, 0x2D, 0x0C, \
+  0xAF, 0x8C, 0x02, 0xE4, 0x47, 0x05, 0x9C, 0xB0, \
+  0xFE, 0x6F, 0x1A, 0x40, 0x3D, 0x57, 0x70, 0x0D, \
+  0x9B, 0x3F, 0x34, 0xCD, 0xD4, 0xCF, 0xDC, 0x8C  }, \
+  {0x36, 0x6D, 0x48, 0x58, 0xAD, 0x64, 0xE5, 0xE4,  \
+  	0xAE, 0x9A, 0xC1, 0x49, 0xEF, 0xD9, 0x94, 0x75, \
+  0xF8, 0x24, 0x7B, 0x9A, 0xCF, 0x18, 0x53, 0xF9,  \
+  0x41, 0xB0, 0xC5, 0x5A, 0x86, 0xB9, 0x60, 0xF4  }
+};
+/* Imported Key */
+EccPoint strange_pub= {
+  {0x06, 0xE6, 0x9C, 0xFE, 0x72, 0x2A, 0xAC, 0x71, \
+  	0x55, 0xA3, 0x4A, 0x9A, 0xD1, 0x6B, 0x21, 0xA7, \
+  0x51, 0xCC, 0xE8, 0xA0, 0x5C, 0x65, 0xC2, 0xA8, \
+  0x77, 0xDD, 0x9D, 0x4C, 0x3D, 0xDC, 0x7A, 0x03}, \
+  {0x84, 0x7E, 0x37, 0xC3, 0x08, 0x70, 0x17, 0xDB, \
+  	0xCD, 0xF1, 0x31, 0xD0, 0x79, 0xEF, 0x2E, 0xB0, \
+  0xF2, 0x09, 0xBA, 0xDF, 0x57, 0xE8, 0xA5, 0x3D, \
+  0x47, 0xE1, 0x1D, 0x42, 0x1B, 0x32, 0x3F, 0x96}
+};
+
+  /*Local and Stranger Keys for Enc/Decription*/
+//local key pair
+uint8_t private_4[NUM_ECC_DIGITS] = {0xA3, 0xB0, 0x24, 0xBB, 0xA9, \
+	0xA2, 0xC2, 0xC0, 0xB2, 0xE6, 0xEB, 0x32, 0xF7, 0x40, 0xF3, 0xD7, \
+	0xB6, 0xFA, 0x27, 0x2F, 0xA8, 0x09, 0xE7, 0x6D, 0xF7, 0x7F, 0xF8, \
+	0xB5, 0x7F, 0x0D, 0xDF, 0xBE};
+uint8_t public_4x[NUM_ECC_DIGITS] = {0x03, 0x7A, 0xDC, 0x3D, 0x4C, \
+	0x9D, 0xDD, 0x77, 0xA8, 0xC2, 0x65, 0x5C, 0xA0, 0xE8, 0xCC, 0x51, \
+	0xA7, 0x21, 0x6B, 0xD1, 0x9A, 0x4A, 0xA3, 0x55, 0x71, 0xAC, 0x2A, \
+	0x72, 0xFE, 0x9C, 0xE6, 0x06};
+uint8_t public_4y[NUM_ECC_DIGITS] = {0x96, 0x3F, 0x32, 0x1B, 0x42, 0x1D, \
+	0xE1, 0x47, 0x3D, 0xA5, 0xE8, 0x57, 0xDF, 0xBA, 0x09, 0xF2, 0xB0, 0x2E, \
+	0xEF, 0x79, 0xD0, 0x31, 0xF1, 0xCD, 0xDB, 0x17, 0x70, 0x08, 0xC3, 0x37, \
+	0x7E, 0x84};
+// public stranger key
+uint8_t public_3x[NUM_ECC_DIGITS] = {0x8C, 0xDC, 0xCF, 0xD4, 0xCD, 0x34, \
+	0x3F, 0x9B, 0x0D, 0x70, 0x57, 0x3D, 0x40, 0x1A, 0x6F, 0xFE, 0xB0, 0x9C, \
+	0x05, 0x47, 0xE4, 0x02, 0x8C, 0xAF, 0x0C, 0x2D, 0xDB, 0x8A, 0xC9, 0x66, \
+	0x37, 0x1F};
+uint8_t public_3y[NUM_ECC_DIGITS] = {0xF4, 0x60, 0xB9, 0x86, 0x5A, 0xC5, \
+	0xB0, 0x41, 0xF9, 0x53, 0x18, 0xCF, 0x9A, 0x7B, 0x24, 0xF8, 0x75, 0x94, \
+	0xD9, 0xEF, 0x49, 0xC1, 0x9A, 0xAE, 0xE4, 0xE5, 0x64, 0xAD, 0x58, 0x48, \
+	0x6D, 0x36};
+/*uint8_t private_3[NUM_ECC_DIGITS] = { 0x8C, 0xDC, 0xCF, 0xD4, 0xCD, 0x34,
+0x3F, 0x9B, 0x0D, 0x70, 0x57, 0x3D, 0x40, 0x1A, 0x6F, 0xFE, 0xB0, 0x9C,
+0x05, 0x47, 0xE4, 0x02, 0x8C, 0xAF, 0x0C, 0x2D, 0xDB, 0x8A, 0xC9, 0x66,
+0x37, 0x1F};
+*/
+
+/*secret key and auxiliar buffer*/
+uint8_t bytebuffer[48];
+uint8_t skey[32];
+
 
 /* Global to know if listen function was called */
 static uint8_t listen = 0;
@@ -196,11 +264,62 @@ static int write_keepalive(int spi_fd, int sockfd, int keepalive_op,
 	/* src and dst address to keepalive */
 	kpalive->dst_addr.address.uint64 = dst.address.uint64;
 	kpalive->src_addr.address.uint64 = src.address.uint64;
-	/* Sends keep alive packet */
-	err = phy_write(spi_fd, &p,
-					sizeof(struct nrf24_ll_data_pdu) +
+
+	/*Encrypt Data*/
+	uint8_t *cdata = p.payload+2;
+	size_t i, block, size = sizeof(struct nrf24_ll_data_pdu) +
 					sizeof(struct nrf24_ll_crtl_pdu) +
-					sizeof(struct nrf24_ll_keepalive));
+					sizeof(struct nrf24_ll_keepalive);
+	if (size > 16){
+		block = 32;
+	} else {
+		block = 16;
+	}
+	#ifdef ARDUINO
+	/*Deriving Secret
+	if (ecdh_shared_secret(skey, &strange_pub, local_priv, 0) == 1) {
+		ecc_native2bytes (bytebuffer, skey);
+		memcpy(skey, bytebuffer, NUM_ECC_DIGITS);
+	} else {
+		printf("Failed to derive secret!\n");
+	}
+	printf("\nSecret key is:\n");
+	int i;
+	for (i=0; i<NUM_ECC_DIGITS; i++){
+		printf("%02hhX \n", (void*) skey[i]);
+	}
+	/*Key Expanded Structure */
+  	aes256_ctx_t ctx;
+
+	/*Initialize AES with Key */
+  	aes256_init(skey, &ctx);
+
+  	/*PKCS7 Padding for 16 bytes blocks*/
+  	uint8_t pad_value = 16-(size%16);
+  	for(int i=size; i<size+pad_value; i++){
+    	cdata[i]=pad_value;
+  	}
+
+  	/*encrypt padded buffer*/
+  	aes256_enc(cdata, &ctx);
+  	if (size > 16){
+		aes256_enc(cdata+16, &ctx);
+	}
+
+	#else
+
+	derive_secret (public_3x, public_3y, private_4,
+						public_4x, public_4y, skey);
+    int ciphertext_len = encrypt (cdata, block, skey, 0, bytebuffer);
+	memcpy(cdata, bytebuffer, ciphertext_len);
+
+	#endif
+	size = block;
+
+	/*End of Encryption*/
+
+	/* Sends keep alive packet */
+	err = phy_write(spi_fd, &p, size);
 
 	if (err < 0)
 		return err;
@@ -404,6 +523,112 @@ static int write_raw(int spi_fd, int sockfd)
 		memcpy(opdu->payload, peers[sockfd-1].buffer_tx +
 			(peers[sockfd-1].len_tx - left), plen);
 
+		/*Encrypt Data*/
+
+		size_t i, block, size = plen;
+		if (size > 16){
+			block = 32;
+		} else {
+			block = 16;
+		}
+
+		#ifdef ARDUINO
+
+		/*Deriving Secret*/
+		if (ecdh_shared_secret(skey, &strange_pub, local_priv, 0) == 1) {
+			ecc_native2bytes (bytebuffer, skey);
+			memcpy(skey, bytebuffer, NUM_ECC_DIGITS);
+		} else {
+			printf("Failed to derive secret!\n");
+		}
+		printf("\nSecret key is:\n");
+		int i;
+		for (i=0; i<NUM_ECC_DIGITS; i++){
+			printf("%02hhX \n", (void*) skey[i]);
+		}
+
+		/*Key Expanded Structure */
+	  	aes256_ctx_t ctx;
+
+		/*Initialize AES with Key */
+	  	aes256_init(skey, &ctx);
+		/*
+		printf("\npayload is (%c):", sizeof(p.payload));
+		for (i = 0; i < sizeof(p.payload); i++) {
+			printf("%c,", (unsigned)p.payload[i]);
+		}
+
+		printf("\nBytebuffer is (%d):", block);
+		for (i = 0; i < block; i++) {
+			printf("0x%02X ", (unsigned)cdata[i]);
+		}
+
+	  	/*PKCS7 Padding for 16 bytes blocks*/
+	  	uint8_t pad_value = 16-(size%16);
+	  	for (i=size; i<size+pad_value; i++){
+	    	cdata[i]=pad_value;
+	  	}
+	  	/*
+	  	printf("\nPadded is :");
+	  	for (i = 0; i < block; i++) {
+			printf("0x%02X ", (unsigned)cdata[i]);
+		}
+
+	  	/*encrypt padded buffer*/
+	  	aes256_enc(cdata, &ctx);
+	  	if (size > 16){
+			aes256_enc(cdata+16, &ctx);
+		}
+
+		printf("\nCyphered data:\n");
+		for (i = 0; i < block; i++) {
+			printf("0x%02X ", (unsigned)cdata[i]);
+		}
+
+		aes256_dec(cdata, &ctx);
+
+		printf("\nDecyphered data:\n");
+		for (i = 0; i < block; i++) {
+			printf("0x%02X ", (unsigned)cdata[i]);
+		}
+
+		/*Unpadding PKCS7*/
+		size = block; //size equals block on receiver end
+		pad_value = cdata[size-1];
+		printf("\npad_value is 0x%02X \n", (unsigned)pad_value);
+		bool ispadded = true;
+		for (i = 1; i < pad_value; i++) {
+		  if (cdata[size-i] != pad_value) {
+		    ispadded = false;
+		    printf("\nFalse at %d\n", i);
+		    break;
+		  }
+		}
+		if (ispadded) {
+		  for (i = 1; i<=pad_value; i++) {
+		    cdata[size-i] = 0x00;
+		  }
+		}
+
+		printf("Unpadded data:\n");
+		for (i = 0; i < block; i++) {
+			printf("0x%02X ", (unsigned)cdata[i]);
+		}
+
+		#else
+
+		derive_secret (public_3x, public_3y, private_4,
+							public_4x, public_4y, skey);
+	    int ciphertext_len = encrypt (cdata, block, skey, 0, bytebuffer);
+		memcpy(cdata, bytebuffer, ciphertext_len);
+
+		#endif
+
+		plen = block;
+
+		/*End of Encryption*/
+
+
 		/* Send packet */
 		err = phy_write(spi_fd, &p, plen + DATA_HDR_SIZE);
 		/*
@@ -448,6 +673,66 @@ static int read_raw(int spi_fd, int sockfd)
 	 * on success, the number of bytes read is returned
 	 */
 	while ((ilen = phy_read(spi_fd, &p, NRF24_MTU)) > 0) {
+
+		/*Decrypt Data here*/
+
+		size_t i, block, size = ilen - DATA_HDR_SIZE;
+		if (size > 16){
+			block = 32;
+		} else {
+			block = 16;
+		}
+
+		//printf("\nsize is %d(%d)\nData is: ", size, DATA_HDR_SIZE);
+
+		for (i = 0; i < block; i++) {
+			printf("0x%02X ", (unsigned)p.payload[i+2]);
+		}
+
+		#ifdef ARDUINO
+
+		if (ecdh_shared_secret(skey, &strange_pub, local_priv, 0) == 1){
+			ecc_native2bytes (bytebuffer, skey);
+			memcpy(skey, bytebuffer, NUM_ECC_DIGITS);
+		} else {
+			printf("Failed to derive secret!\n");
+		}
+
+		/*Key Expanded Structure */
+	  	aes256_ctx_t ctx;
+
+		/*Initialize AES with Key */
+	  	aes256_init(skey, &ctx);
+
+	  	/*Decrypt data*/
+	  	aes256_dec(cdata, &ctx);
+  		if (block > 16){
+  			aes256_dec(cdata+16, &ctx);
+  		}
+
+		#else
+
+		derive_secret (public_3x, public_3y, private_4,
+			public_4x, public_4y, skey);
+		uint8_t temp[block];
+		memcpy(temp, cdata, block);
+
+		printf("Temp is (%d):", block);
+		for (i = 0; i < block; i++) {
+			printf("0x%02X ", (unsigned)temp[i]);
+		}
+
+		int decryptedtext_len = decrypt(temp, block, skey,
+											0, bytebuffer);
+		printf("\nTemp decyphered(%d):\n", decryptedtext_len);
+		for (i = 0; i < block; i++) {
+			printf("0x%02X ", (unsigned)bytebuffer[i]);
+		}
+
+		#endif
+		/*End of Decryption*/
+
+
 		/* Check if is data or Control */
 		switch (ipdu->lid) {
 
