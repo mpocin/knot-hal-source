@@ -37,6 +37,7 @@ src_nrfd_nrfd_CFLAGS = $(AM_CFLAGS) @GLIB_CFLAGS@ @OPENSSL_CFLAGS@ \
 				-I$(top_srcdir)/src/nrf24l01 \
 				-I$(top_srcdir)/src/drivers \
 				-I$(top_srcdir)/src/hal/comm \
+				-I$(top_srcdir)/src/hal/sec \
 				-I$(top_srcdir)/src/nrf24l01 @JSON_CFLAGS@
 
 src_lorad_lorad_SOURCES = src/lorad/main.c
