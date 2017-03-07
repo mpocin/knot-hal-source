@@ -27,7 +27,7 @@
 #include "phy_driver.h"
 #include "phy_driver_nrf24.h"
 #include "nrf24l01_ll.h"
-#include "src/hal/sec/security.h"
+#include "sec/security.h"
 
 #define _MIN(a, b)		((a) < (b) ? (a) : (b))
 #define DATA_SIZE 128
