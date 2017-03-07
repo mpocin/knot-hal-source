@@ -4,7 +4,8 @@ AM_CFLAGS = $(WARNING_CFLAGS) $(BUILD_CFLAGS)
 
 libhalcommnrf24_a_SOURCES = comm_nrf24l01.c
 libhalcommnrf24_a_CPPFLAGS = $(AM_CFLAGS) -I$(top_srcdir)/src/nrf24l01 \
-					-I$(top_srcdir)/src/drivers
+					-I$(top_srcdir)/src/drivers \
+					-I$(top_srcdir)/src/hal/sec
 libhalcommnrf24_a_DEPENDENCIES = $(top_srcdir)/include/comm.h
 
 libhalcommserial_a_SOURCES = comm_serial_linux.c
