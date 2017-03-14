@@ -1,5 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <assert.h>
+
 #include <openssl/obj_mac.h>
 #include <openssl/ec.h>
 #include <openssl/evp.h>
@@ -9,9 +13,9 @@
 #include <openssl/aes.h>
 #include <openssl/rand.h>
 #include <openssl/conf.h>
-#include <string.h>
-#include <stdint.h>
-#include <assert.h>
+
+#include "nanoecc/ecc.h"
+#include "aes/aes.h"
 
 #ifdef __cplusplus
 extern "C"{

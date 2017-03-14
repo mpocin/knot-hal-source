@@ -27,7 +27,8 @@
 #include "phy_driver.h"
 #include "phy_driver_nrf24.h"
 #include "nrf24l01_ll.h"
-#include "src/hal/sec/security.h"
+/* FIXME: add sec folder to makefile on thing */
+#include "security.h"
 
 #define _MIN(a, b)		((a) < (b) ? (a) : (b))
 #define DATA_SIZE 128
@@ -453,21 +454,21 @@ static int write_raw(int spi_fd, int sockfd)
 			(peers[sockfd-1].len_tx - left), plen);
 
 		/*Encrypt Data*/
-		
+
 		if (plen > 16)
 			block = 32;
 		else
 			block = 16;
-		
+
 		cdata = opdu->payload + 2;
 
 		derive_secret (public_3x, public_3y, private_4,
 						public_4x, public_4y, skey, 0);
-		
+
 		err = encrypt(cdata, block, skey, &iv);
 		if (err < 0)
 			return err;
-		
+
 		plen = block;
 
 		/*End of Encryption*/
@@ -518,7 +519,7 @@ static int read_raw(int spi_fd, int sockfd)
 	 * on success, the number of bytes read is returned
 	 */
 	while ((ilen = phy_read(spi_fd, &p, NRF24_MTU)) > 0) {
-		
+
 		/*Decrypt Data here*/
 		size = ilen - DATA_HDR_SIZE;
 		if (size > 16)
@@ -527,13 +528,13 @@ static int read_raw(int spi_fd, int sockfd)
 			block = 16;
 
 		size = decrypt(cdata, block, skey, 0);
-		
+
 		if (size < 0)
 			return size;
 			/*TO-DO set err = size if size <0*/
 
 		/*End of Decryption*/
-		
+
 		/* Check if is data or Control */
 		switch (ipdu->lid) {
 
