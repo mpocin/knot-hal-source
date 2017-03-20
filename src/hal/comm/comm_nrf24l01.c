@@ -505,13 +505,15 @@ static int write_raw(int spi_fd, int sockfd)
 
 static int read_raw(int spi_fd, int sockfd)
 {
-	size_t ilen, plen, block;
+	ssize_t ilen;
+	size_t plen, block;
 	struct nrf24_io_pack p;
-	int size;
+	int size, i;
 	uint8_t *cdata = p.payload+2;
 
 	const struct nrf24_ll_data_pdu *ipdu = (void *)p.payload;
 
+	printf("Reading data...\n");
 	p.pipe = sockfd;
 	p.payload[0] = 0;
 	/*
@@ -520,6 +522,7 @@ static int read_raw(int spi_fd, int sockfd)
 	 */
 	while ((ilen = phy_read(spi_fd, &p, NRF24_MTU)) > 0) {
 
+		printf("Starting decryption.\n");
 		/*Decrypt Data here*/
 		size = ilen - DATA_HDR_SIZE;
 		if (size > 16)
@@ -527,7 +530,17 @@ static int read_raw(int spi_fd, int sockfd)
 		else
 			block = 16;
 
+		printf("Encrypted data is (%d):\n", size );
+		for (i = 0; i < size; i++){
+			printf("0x%02X ", (unsigned) cdata[i]);
+		}
+
 		size = decrypt(cdata, block, skey, 0);
+
+		printf("Decrypted data is (%d):\n", size );
+		for (i = 0; i < size; i++){
+			printf("0x%02X ", (unsigned) cdata[i]);
+		}
 
 		if (size < 0)
 			return size;
