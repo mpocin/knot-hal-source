@@ -147,15 +147,15 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	/* Set user id to nobody */
-	if (setuid(65534) != 0) {
-		err = errno;
-		hal_log_error("Set uid to nobody failed. %s(%d). Exiting...",
-							strerror(err), err);
-		manager_stop();
-		hal_log_close();
-		return EXIT_FAILURE;
-	}
+	// /* Set user id to nobody */
+	// if (setuid(65534) != 0) {
+	// 	err = errno;
+	// 	hal_log_error("Set uid to nobody failed. %s(%d). Exiting...",
+	// 						strerror(err), err);
+	// 	manager_stop();
+	// 	hal_log_close();
+	// 	return EXIT_FAILURE;
+	// }
 
 	/* Starting inotify */
 	inotifyFD = inotify_init();
