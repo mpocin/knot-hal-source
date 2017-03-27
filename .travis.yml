@@ -1,0 +1,17 @@
+dist:
+        trusty
+sudo:
+        required
+
+language:
+        c
+
+compiler:
+        - gcc
+
+before_install:
+        - sudo apt-get install sed make binutils build-essential bash patch gzip bzip2 perl tar cpio python unzip rsync libtool autotools-dev automake libglib2.0-dev
+
+script:
+        - ./bootstrap-configure --enable-debug --disable-optimization
+        - make
