@@ -720,10 +720,10 @@ done:
 	/* Check if peer is allowed to connect */
 	if (check_permission(evt_pre->mac) < 0)
 		return -EPERM;
-
+	hal_log_info("check permission OK");
 	if (count_clients >= MAX_PEERS)
 		return -EUSERS; /*MAX PEERS*/
-
+	hal_log_info("number of peers OK");
 	/*Check if this peer is already allocated */
 	position = get_peer(evt_pre->mac);
 	/* If this is a new peer */
@@ -735,6 +735,7 @@ done:
 
 		/*Create Socket */
 		err = hal_comm_socket(HAL_COMM_PF_NRF24, HAL_COMM_PROTO_RAW);
+		hal_log_info("Socket created!");
 		if (err < 0)
 			return err;
 
@@ -763,7 +764,7 @@ done:
 			G_IO_FLAG_NONBLOCK, NULL);
 		g_io_channel_set_close_on_unref(peers[position].knotd_io,
 			FALSE);
-
+		hal_log_info("knotd socket OK");
 		peers[position].knotd_id =
 			g_io_add_watch_full(peers[position].knotd_io,
 						G_PRIORITY_DEFAULT,
@@ -802,12 +803,13 @@ static int8_t evt_disconnected(struct mgmt_nrf24_header *mhdr)
 
 	if (count_clients == 0)
 		return -EINVAL;
-
+	hal_log_info("more than one client disconnected");
 	position = get_peer(evt_disc->mac);
 	if (position < 0)
 		return position;
 
 	g_source_remove(peers[position].knotd_id);
+	hal_log_info("remove clients");
 	return 0;
 }
 
@@ -828,6 +830,7 @@ static int8_t clients_read()
 
 		ret = hal_comm_read(peers[i].socket_fd, &buffer,
 			sizeof(buffer));
+
 		if (ret > 0) {
 			if (write(peers[i].knotd_fd, buffer, ret) < 0)
 				hal_log_error("write_knotd() error");
@@ -857,6 +860,7 @@ static int8_t mgmt_read(void)
 	if (!(mhdr->opcode & 0x0200))
 		return -1;
 
+	hal_log_info("management read OK");
 	switch (mhdr->opcode) {
 
 	case MGMT_EVT_NRF24_BCAST_PRESENCE:
@@ -870,6 +874,7 @@ static int8_t mgmt_read(void)
 		break;
 
 	case MGMT_EVT_NRF24_DISCONNECTED:
+		hal_log_info("nrf disconnected");
 		evt_disconnected(mhdr);
 		break;
 	}
