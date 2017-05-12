@@ -722,8 +722,10 @@ done:
 		return -EPERM;
 	}
 
-	if (count_clients >= MAX_PEERS)
+	if (count_clients >= MAX_PEERS) {
+		hal_log_info("nRF24 maximum clients error: %d", count_clients);
 		return -EUSERS; /* MAX PEERS */
+	}
 
 	/* Check if this peer is already allocated */
 	position = get_peer(evt_pre->mac);
@@ -731,8 +733,10 @@ done:
 	if (position < 0) {
 		/* Get free peers position */
 		position = get_peer_index();
-		if (position < 0)
+		if (position < 0) {
+			hal_log_info("nRF24 get_peer_index(): %d", position);
 			return position;
+		}
 
 		/* Radio socket: nRF24 */
 		nsk = hal_comm_socket(HAL_COMM_PF_NRF24, HAL_COMM_PROTO_RAW);
