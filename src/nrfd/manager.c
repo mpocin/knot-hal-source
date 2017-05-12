@@ -775,8 +775,10 @@ static int8_t evt_presence(struct mgmt_nrf24_header *mhdr)
 	g_hash_table_insert(peer_bcast_table, g_strdup(mac_str), peer);
 done:
 	/* Check if peer is allowed to connect */
-	if (check_permission(evt_pre->mac) < 0)
+	if (check_permission(evt_pre->mac) < 0) {
+		hal_log_info("%s is unknown: ignoring!", mac_str);
 		return -EPERM;
+	}
 
 	if (count_clients >= MAX_PEERS)
 		return -EUSERS; /* MAX PEERS */
