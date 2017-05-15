@@ -104,7 +104,7 @@ static void DumpEEPROM(void)
 				Serial.print(" - ");
 				for(pstr=str; index != 0; --index, ++pstr) {
 					if(*pstr < ' ' || *pstr > 0x7f) {
-						Serial.print('.');
+						Serial.print(F("."));
 					} else {
 						Serial.print(*pstr);
 					}
@@ -114,28 +114,28 @@ static void DumpEEPROM(void)
 			}
 
 			if (address == EEPROM.length()) {
-				Serial.println("[END]\n");
+				Serial.println(F("[END]\n"));
 				address = 0;
 				return;
 			}
 
 			Serial.print('[');
 			if (address < 9) {
-				Serial.print("000");
+				Serial.print(F("000"));
 			} else if (address < 99) {
-				Serial.print("00");
+				Serial.print(F("00"));
 			} else if (address < 999) {
-				Serial.print("0");
+				Serial.print(F("0"));
 			}
 			Serial.print(address);
-			Serial.print("]:");
+			Serial.print(F("]:"));
 			index = 0;
 		}
 
-		Serial.print(" ");
+		Serial.print(F(" "));
 
 		if (value < 16) {
-			Serial.print("0");
+			Serial.print(F("0"));
 		}
 
 		Serial.print(value, HEX);
@@ -151,59 +151,59 @@ static void testComparisons(void)
 
 	/* UUID */
 	if((memcmp(value_UUID, value_UUID_out, sizeof(value_UUID))) == 0)
-		Serial.println("UUID: \t\tOk");
+		Serial.println(F("UUID: \t\tOk"));
 	else
-		Serial.println("Problems reading UUID");
+		Serial.println(F("Problems reading UUID"));
 
 	/* TOKEN */
 	if((memcmp(value_TOKEN, value_TOKEN_out, sizeof(value_TOKEN))) == 0)
-		Serial.println("TOKEN: \t\tOk");
+		Serial.println(F("TOKEN: \t\tOk"));
 	else
-		Serial.println("Problems reading TOKEN");
+		Serial.println(F("Problems reading TOKEN"));
 
 	/* MAC */
 	if (mac == mac_out.dw)
-		Serial.println("MAC: \t\tOk");
+		Serial.println(F("MAC: \t\tOk"));
 	else
-		Serial.println("Problems reading MAC");
+		Serial.println(F("Problems reading MAC"));
 
 	/* PRIVATE KEY */
 	if ((memcmp(value_PRIVATE_KEY, value_PRIVATE_KEY_out,
 		 sizeof(value_PRIVATE_KEY))) == 0)
-		Serial.println("PRIVATE KEY: \t\tOk");
+		Serial.println(F("PRIVATE KEY: \t\tOk"));
 	else
-		Serial.println("Problems reading PRIVATE KEY");
+		Serial.println(F("Problems reading PRIVATE KEY"));
 
 	/* PUBLIC KEY */
 	if ((memcmp(value_PUBLIC_KEY, value_PUBLIC_KEY_out,
 		 sizeof(value_PUBLIC_KEY))) == 0)
-		Serial.println("PUBLIC KEY: \t\tOk");
+		Serial.println(F("PUBLIC KEY: \t\tOk"));
 	else
-		Serial.println("Problems reading PUBLIC KEY");
+		Serial.println(F("Problems reading PUBLIC KEY"));
 
 	/* FOREIGN KEY */
 	if ((memcmp(value_FOREIGN_KEY, value_FOREIGN_KEY_out,
 		 sizeof(value_FOREIGN_KEY))) == 0)
-		Serial.println("FOREIGN KEY: \t\tOk");
+		Serial.println(F("FOREIGN KEY: \t\tOk"));
 	else
-		Serial.println("Problems reading FOREIGN KEY");
+		Serial.println(F("Problems reading FOREIGN KEY"));
 
 	/* Config */
 	if((memcmp(conf, conf_out, sizeof(conf))) == 0)
-		Serial.println("Config: \tOk\n");
+		Serial.println(F("Config: \tOk\n"));
 	else
-		Serial.println("Problems reading Config\n");
+		Serial.println(F("Problems reading Config\n"));
 
-	Serial.print("EEPROM(");
+	Serial.print(F("EEPROM("));
 	Serial.print(EEPROM.length());
-	Serial.println(") Dumping...");
+	Serial.println(F(") Dumping..."));
 
  	DumpEEPROM();
 }
 
 static void testWrite_function(void)
 {
-	Serial.println("Unit Test Write EEPROM Functions");
+	Serial.println(F("Unit Test Write EEPROM Functions"));
 
 	/* Write Functions */
 	hal_storage_write_end(HAL_STORAGE_ID_UUID, (void *) value_UUID,
@@ -249,7 +249,7 @@ static void testWrite_function(void)
 
 static void testRead_function()
 {
-	Serial.println("Unit Test Read EEPROM Functions");
+	Serial.println(F("Unit Test Read EEPROM Functions"));
 
 	/* White Functions (natives) */
 	eeprom_write_block(&value_UUID, (void *) ADDR_UUID, sizeof(value_UUID));
