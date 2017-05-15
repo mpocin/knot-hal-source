@@ -18,9 +18,9 @@ void setup()
 {
 	Serial.begin(9600);
 
-	Serial.print("EEPROM(");
+	Serial.print(F("EEPROM("));
 	Serial.print(EEPROM.length());
-	Serial.println(") Dumping...");
+	Serial.println(F(") Dumping..."));
 }
 
 void loop()
@@ -32,7 +32,7 @@ void loop()
 			Serial.print(" - ");
 			for(pstr=str; index != 0; --index, ++pstr) {
 				if(*pstr < ' ' || *pstr > 0x7f) {
-					Serial.print('.');
+					Serial.print(F("."));
 				} else {
 					Serial.print(*pstr);
 				}
@@ -42,27 +42,27 @@ void loop()
 		}
 
 		if (address == EEPROM.length()) {
-			Serial.println("[END]\n");
+			Serial.println(F("[END]\n"));
 			while(true);
 		}
 
 		Serial.print('[');
 		if (address < 9) {
-			Serial.print("000");
+			Serial.print(F("000"));
 		} else if (address < 99) {
-			Serial.print("00");
+			Serial.print(F("00"));
 		} else if (address < 999) {
-			Serial.print("0");
+			Serial.print(F("0"));
 		}
 		Serial.print(address);
-		Serial.print("]:");
+		Serial.print(F("]:"));
 		index = 0;
 	}
 
-	Serial.print(" ");
+	Serial.print(F(" "));
 
 	if (value < 16) {
-		Serial.print("0");
+		Serial.print(F("0"));
 	}
 
 	Serial.print(value, HEX);
