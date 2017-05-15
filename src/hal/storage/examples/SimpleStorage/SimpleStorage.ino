@@ -1,4 +1,14 @@
-#include <storage.h>
+/*
+ * Copyright (c) 2017, CESAR.
+ * All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the BSD license. See the LICENSE file for details.
+ *
+ */
+
+#include "KNoTThing.h"
+#include "hal/storage.h"
 
 static char str[] = "Value that is stored in the EEPROM";
 static char vector[50];
