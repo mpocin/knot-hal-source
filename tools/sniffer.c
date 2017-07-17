@@ -73,10 +73,14 @@ static void listen_raw(void)
 			if (ctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_REQ)
 				printf("NRF24_LL_CRTL_OP_KEEPALIVE_REQ\n");
 
+			if(ctrl->opcode == NRF24_LL_CRTL_OP_DISCONNECT)
+				printf("NRF24_LL_CRTL_OP_DISCONNECT\n");
+
 			printf("src_addr : %llX\n",
 			(long long int) kpalive->src_addr.address.uint64);
 			printf("dst_addr : %llX\n",
 			(long long int)kpalive->dst_addr.address.uint64);
+			printf("LEN : %zd\n", ilen);
 
 		}
 			break;
@@ -251,4 +255,3 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-
