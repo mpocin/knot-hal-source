@@ -157,20 +157,24 @@ static void listen_mgmt(void)
 			/* Link layer connect structure */
 			llcn = (struct nrf24_ll_mgmt_connect *) ipdu->payload;
 
-			/* Header type is a connect request type */
-			printf("%05ld.%06ld nRF24: Connect Req(0x%02x) plen:%zd\n",
+			if (ilen == (sizeof(struct nrf24_ll_mgmt_pdu) +
+				     sizeof(struct nrf24_ll_mgmt_connect))) {
+
+					     /* Header type is a connect request type */
+					     printf("%05ld.%06ld nRF24: Connect Req(0x%02x) plen:%zd\n",
 						sec, usec, ipdu->type, ilen);
 
-			nrf24_mac2str(&llcn->src_addr, src);
-			nrf24_mac2str(&llcn->dst_addr, dst);
-			printf("  %s > %s\n", src, dst);
-			printf("  CH: %d AA: %02x%02x%02x%02x%02x\n",
+						nrf24_mac2str(&llcn->src_addr, src);
+						nrf24_mac2str(&llcn->dst_addr, dst);
+						printf("  %s > %s\n", src, dst);
+						printf("  CH: %d AA: %02x%02x%02x%02x%02x\n",
 							llcn->channel,
 							llcn->aa[0],
 							llcn->aa[1],
 							llcn->aa[2],
 							llcn->aa[3],
 							llcn->aa[4]);
+			}
 			break;
 		default:
 			printf("%05ld.%06ld nRF24: Unknown (0x%02x) plen:%zd\n",
