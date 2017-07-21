@@ -48,23 +48,42 @@ static void listen_raw(void)
 	struct nrf24_io_pack p;
 	ssize_t ilen;
 	const struct nrf24_ll_data_pdu *ipdu = (void *)p.payload;
+	struct nrf24_ll_crtl_pdu *ctrl;
+	struct nrf24_ll_keepalive *kpalive;
+	unsigned long int sec, usec;
+	struct timeval tm, reftm;
 
+	/* Read from management pipe */
 	p.pipe = 1;
+
+	/* Reference time */
+	gettimeofday(&reftm, NULL);
+
 	while (!quit) {
+		memset(&p, 0, sizeof(p));
 		ilen = phy_read(cli_fd, &p, NRF24_MTU);
-		if (ilen < 0)
+		//printf("%d - %d\n", ilen, ipdu->lid);
+
+		if (ilen <= 0)
 			continue;
+
+		gettimeofday(&tm, NULL);
+		if (tm.tv_usec < reftm.tv_usec) {
+			sec = tm.tv_sec - reftm.tv_sec - 1;
+			usec = tm.tv_usec + 1000000 - reftm.tv_usec;
+		} else {
+			sec = tm.tv_sec - reftm.tv_sec;
+			usec = tm.tv_usec - reftm.tv_usec;
+		}
 
 		switch (ipdu->lid) {
 
 		/* If is Control */
 		case NRF24_PDU_LID_CONTROL:
-		{
-			struct nrf24_ll_crtl_pdu *ctrl =
-				(struct nrf24_ll_crtl_pdu *) ipdu->payload;
 
-			struct nrf24_ll_keepalive *kpalive =
-				(struct nrf24_ll_keepalive *) ctrl->payload;
+			ctrl = (struct nrf24_ll_crtl_pdu *) ipdu->payload;
+
+			kpalive = (struct nrf24_ll_keepalive *) ctrl->payload;
 
 			printf("NRF24_PDU_LID_CONTROL\n");
 			if (ctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_RSP)
@@ -81,29 +100,26 @@ static void listen_raw(void)
 			printf("dst_addr : %llX\n",
 			(long long int)kpalive->dst_addr.address.uint64);
 			printf("LEN : %zd\n", ilen);
-
-		}
 			break;
 
 		/* If is Data */
 		case NRF24_PDU_LID_DATA_FRAG:
-		{
 			printf("NRF24_PDU_LID_DATA_FRAG\n");
 			printf("nseq : %d\n", ipdu->nseq);
 			printf("payload: %s\n", ipdu->payload);
-		}
 			break;
+
 		case NRF24_PDU_LID_DATA_END:
-		{
 			printf("NRF24_PDU_LID_DATA_END\n");
 			printf("nseq : %d\n", ipdu->nseq);
 			printf("payload: %s\n", ipdu->payload);
-		}
 			break;
+
 		default:
 			printf("CODE INVALID %d\n", ipdu->lid);
+			break;
 		}
-		printf("\n\n");
+		//printf("\n\n");
 	}
 }
 
@@ -216,6 +232,8 @@ int main(int argc, char *argv[])
 	}
 
 	cli_fd = phy_open("NRF0");
+	printf("FD: %d", cli_fd);
+
 	if (cli_fd < 0) {
 		printf("error open");
 		return EXIT_FAILURE;
@@ -244,7 +262,7 @@ int main(int argc, char *argv[])
 		printf("listen raw\n");
 		/* Set Channel */
 		phy_ioctl(cli_fd, NRF24_CMD_SET_CHANNEL, &channel_raw);
-		/* Open pipe zero */
+		/* Open pipe 0 */
 		adrrp.pipe = 0;
 		adrrp.ack = false;
 		memcpy(adrrp.aa, aa_pipes[0], sizeof(aa_pipes[0]));

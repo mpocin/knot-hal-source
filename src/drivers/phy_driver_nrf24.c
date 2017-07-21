@@ -75,6 +75,7 @@ static ssize_t nrf24l01_read(int spi_fd, void *buffer, size_t len)
 	struct nrf24_io_pack *p = (struct nrf24_io_pack *) buffer;
 
 	/* If the pipe available */
+//	printf("nrf_read - pipe available%d\n", nrf24l01_prx_pipe_available(spi_fd));
 	if (nrf24l01_prx_pipe_available(spi_fd) == p->pipe)
 		/* Copy data to buffer */
 		length = nrf24l01_prx_data(spi_fd, p->payload, len);
@@ -121,6 +122,7 @@ static int nrf24l01_ioctl(int spi_fd, int cmd, void *arg)
 
 		err = nrf24l01_open_pipe(spi_fd, addrpipe->pipe,
 					addrpipe->aa, addrpipe->ack);
+		printf("nrf_open_pipe - return: %d\n", err);
 		break;
 	case NRF24_CMD_RESET_PIPE:
 		err = nrf24l01_close_pipe(spi_fd, *((int *) arg));
