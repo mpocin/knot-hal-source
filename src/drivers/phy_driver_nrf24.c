@@ -31,7 +31,7 @@ static const uint8_t PROGMEM broadcast_addr[5] = {0x8D, 0xD9, 0xBE, 0x96, 0xDE};
 #else
 const uint8_t broadcast_addr[5] = {0x8D, 0xD9, 0xBE, 0x96, 0xDE};
 #endif
-	
+
 static ssize_t nrf24l01_write(int spi_fd, const void *buffer, size_t len)
 {
 	int err;
@@ -122,7 +122,7 @@ static int nrf24l01_ioctl(int spi_fd, int cmd, void *arg)
 
 		err = nrf24l01_open_pipe(spi_fd, addrpipe->pipe,
 					addrpipe->aa, addrpipe->ack);
-		printf("nrf_open_pipe - return: %d\n", err);
+		printf("SET PIPE: %d\n", arg);
 		break;
 	case NRF24_CMD_RESET_PIPE:
 		err = nrf24l01_close_pipe(spi_fd, *((int *) arg));
@@ -130,6 +130,7 @@ static int nrf24l01_ioctl(int spi_fd, int cmd, void *arg)
 	/* Command to set channel pipe */
 	case NRF24_CMD_SET_CHANNEL:
 		err = nrf24l01_set_channel(spi_fd, *((int *) arg));
+		printf("SET CHANNEL: %d\n", arg);
 		break;
 	case NRF24_CMD_SET_STANDBY:
 		break;

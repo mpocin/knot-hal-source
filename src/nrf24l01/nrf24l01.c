@@ -312,7 +312,6 @@ int8_t nrf24l01_open_pipe(int8_t spi_fd, uint8_t pipe, uint8_t *pipe_addr,
 	memcpy(&rpipe, &pipe_reg[pipe], sizeof(rpipe));
 
 	/* Enable pipe */
-	printf("if dentro do open_pipe: %d\n", !(nrf24reg_read(spi_fd, NRF24_EN_RXADDR) & rpipe.en_rxaddr));
 	if (!(nrf24reg_read(spi_fd, NRF24_EN_RXADDR) & rpipe.en_rxaddr)) {
 		set_address_pipe(spi_fd, rpipe.rx_addr, pipe_addr);
 		outr(spi_fd, NRF24_EN_RXADDR,

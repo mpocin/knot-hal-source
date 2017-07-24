@@ -61,8 +61,9 @@ static void listen_raw(void)
 
 	while (!quit) {
 		memset(&p, 0, sizeof(p));
+		printf("FD: %d, PIPE: %d, MTU: %d\n", cli_fd, p, NRF24_MTU);
 		ilen = phy_read(cli_fd, &p, NRF24_MTU);
-		//printf("%d - %d\n", ilen, ipdu->lid);
+		printf("LEN: %d\n", ilen);
 
 		if (ilen <= 0)
 			continue;
@@ -87,13 +88,13 @@ static void listen_raw(void)
 
 			printf("NRF24_PDU_LID_CONTROL\n");
 			if (ctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_RSP)
-				printf("NRF24_LL_CRTL_OP_KEEPALIVE_RSP\n");
+				printf("  %05ld.%06ld NRF24_LL_CRTL_OP_KEEPALIVE_RSP\n", sec, usec);
 
 			if (ctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_REQ)
-				printf("NRF24_LL_CRTL_OP_KEEPALIVE_REQ\n");
+				printf("  %05ld.%06ld NRF24_LL_CRTL_OP_KEEPALIVE_REQ\n", sec, usec);
 
-			if(ctrl->opcode == NRF24_LL_CRTL_OP_DISCONNECT)
-				printf("NRF24_LL_CRTL_OP_DISCONNECT\n");
+			if (ctrl->opcode == NRF24_LL_CRTL_OP_DISCONNECT)
+				printf("  %05ld.%06ld NRF24_LL_CRTL_OP_DISCONNECT\n", sec, usec);
 
 			printf("src_addr : %llX\n",
 			(long long int) kpalive->src_addr.address.uint64);
@@ -232,7 +233,7 @@ int main(int argc, char *argv[])
 	}
 
 	cli_fd = phy_open("NRF0");
-	printf("FD: %d", cli_fd);
+	printf("FD: %d\n", cli_fd);
 
 	if (cli_fd < 0) {
 		printf("error open");
@@ -262,16 +263,19 @@ int main(int argc, char *argv[])
 		printf("listen raw\n");
 		/* Set Channel */
 		phy_ioctl(cli_fd, NRF24_CMD_SET_CHANNEL, &channel_raw);
+		printf("CHANNEL: %d\n", channel_raw);
 		/* Open pipe 0 */
 		adrrp.pipe = 0;
 		adrrp.ack = false;
 		memcpy(adrrp.aa, aa_pipes[0], sizeof(aa_pipes[0]));
 		phy_ioctl(cli_fd, NRF24_CMD_SET_PIPE, &adrrp);
+		printf("FIRST PIPE: %d\n", adrrp);
 		/* Open pipe 1 */
 		adrrp.pipe = 1;
 		adrrp.ack = false;
 		memcpy(adrrp.aa, aa_pipes[1], sizeof(aa_pipes[1]));
 		phy_ioctl(cli_fd, NRF24_CMD_SET_PIPE, &adrrp);
+		printf("SECOND PIPE: %d\n", adrrp);
 		listen_raw();
 	}
 
