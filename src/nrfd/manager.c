@@ -942,6 +942,7 @@ static int8_t mgmt_read(void)
 		break;
 
 	case MGMT_EVT_NRF24_DISCONNECTED:
+		printf("EVT DISCONNECT\n");
 		evt_disconnected(mhdr);
 		break;
 	}

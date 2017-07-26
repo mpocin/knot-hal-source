@@ -215,9 +215,12 @@ static int write_keepalive(int spi_fd, int sockfd, int keepalive_op,
 	/* Sends keep alive packet */
 	err = phy_write(spi_fd, &p, sizeof(*opdu) + sizeof(*llctrl) +
 							sizeof(*llkeepalive));
-	if (err < 0)
+	if (err < 0) {
+		printf("PACKET FAIL\n");
 		return err;
+	}
 
+	printf("PACKET SENT\n");
 	return 0;
 }
 
@@ -474,12 +477,14 @@ static int read_raw(int spi_fd, int sockfd)
 				peers[sockfd-1].mac.address.uint64 &&
 				llkeepalive->dst_addr.address.uint64 ==
 				mac_local.address.uint64) {
+				printf("KEEPALIVE REQ\n");
 				write_keepalive(spi_fd, sockfd,
 					NRF24_LL_CRTL_OP_KEEPALIVE_RSP,
 					peers[sockfd-1].mac,
 					mac_local);
 			} else if (llctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_RSP) {
 				/* Resets the counter */
+				printf("KEEPALIVE RSP\n");
 				peers[sockfd-1].keepalive = 1;
 			}
 
@@ -643,8 +648,8 @@ static void running(void)
 		start = hal_time_ms();
 		/* Go to next state */
 		state = MGMT;
+		printf("MGMT\n");
 	case MGMT:
-
 		read_mgmt(driverIndex);
 		write_mgmt(driverIndex);
 
@@ -667,6 +672,7 @@ static void running(void)
 
 		/* Go to next state */
 		state = RAW;
+		printf("RAW\n");
 	case RAW:
 
 		/* Start broadcast or scan? */
@@ -689,6 +695,8 @@ static void running(void)
 
 			if (check_keepalive(driverIndex, sockIndex) == -ETIMEDOUT &&
 				mgmt.len_rx == 0) {
+
+				printf("KEEPALIVE TIMEOUT\n");
 
 				mgmtev_hdr = (struct mgmt_nrf24_header *)
 								mgmt.buffer_rx;
@@ -813,6 +821,7 @@ int hal_comm_socket(int domain, int protocol)
 		 * from 1 to 5
 		 */
 		retval = alloc_pipe();
+
 		/* If not pipe available */
 		if (retval < 0)
 			return -EUSERS; /* Returns too many users */
