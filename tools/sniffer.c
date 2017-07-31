@@ -50,18 +50,11 @@ static void listen_raw(void)
 	const struct nrf24_ll_data_pdu *ipdu = (void *)p.payload;
 	struct nrf24_ll_crtl_pdu *ctrl;
 	struct nrf24_ll_keepalive *kpalive;
-	struct nrf24_ll_mgmt_connect *llcn;
-	struct addr_pipe created_addr;
 	unsigned long int sec, usec;
 	struct timeval tm, reftm;
 
 	/* Read from management pipe */
 	p.pipe = 1;
-
-	llcn = (struct nrf24_ll_mgmt_connect *) ipdu->payload;
-	created_addr->aa = (uint8_t) llcn->aa;
-	memcpy(created_addr.aa, aa_pipes[1], sizeof(aa_pipes[1]));
-	phy_ioctl(cli_fd, NRF24_CMD_SET_PIPE, &created_addr.aa);
 
 	/* Reference time */
 	gettimeofday(&reftm, NULL);
@@ -84,7 +77,7 @@ static void listen_raw(void)
 			usec = tm.tv_usec - reftm.tv_usec;
 		}
 
-		printf("LID: %d\n", ipdu->lid);
+		//printf("LID: %d\n", ipdu->lid);
 		switch (ipdu->lid) {
 
 		/* If is Control */
@@ -261,7 +254,7 @@ int main(int argc, char *argv[])
 		phy_ioctl(cli_fd, NRF24_CMD_SET_CHANNEL, &channel_mgmt);
 		adrrp.pipe = 0;
 		adrrp.ack = false;
-		memcpy(adrrp.aa, aa_pipes[0], sizeof(aa_pipes[0]));
+		memcpy(adrrp.aa, aa_pipes[0], sizeof(adrrp.aa));
 		phy_ioctl(cli_fd, NRF24_CMD_SET_PIPE, &adrrp);
 		listen_mgmt();
 
@@ -273,12 +266,12 @@ int main(int argc, char *argv[])
 		/* Open pipe 0 */
 		adrrp.pipe = 0;
 		adrrp.ack = false;
-		memcpy(adrrp.aa, aa_pipes[0], sizeof(aa_pipes[0]));
+		memcpy(adrrp.aa, aa_pipes[0], sizeof(adrrp.aa));
 		phy_ioctl(cli_fd, NRF24_CMD_SET_PIPE, &adrrp);
 		/* Open pipe 1 */
 		adrrp.pipe = 1;
 		adrrp.ack = false;
-		memcpy(adrrp.aa, aa_pipes[1], sizeof(aa_pipes[1]));
+		memcpy(adrrp.aa, aa_pipes[1], sizeof(adrrp.aa));
 		phy_ioctl(cli_fd, NRF24_CMD_SET_PIPE, &adrrp);
 		listen_raw();
 	}

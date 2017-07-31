@@ -76,13 +76,9 @@ static ssize_t nrf24l01_read(int spi_fd, void *buffer, size_t len)
 
 	/* If the pipe available */
 //	printf("nrf_read - pipe available%d\n", nrf24l01_prx_pipe_available(spi_fd));
-	if (nrf24l01_prx_pipe_available(spi_fd) == p->pipe) {
-		printf("PIPE AVAILABLE: %d\n", spi_fd);
+	if (nrf24l01_prx_pipe_available(spi_fd) == p->pipe)
 		/* Copy data to buffer */
 		length = nrf24l01_prx_data(spi_fd, p->payload, len);
-	} else {
-		printf("PIPE NOT AVAILABLE: %s\n", spi_fd);
-	}
 
 	/*
 	 * On success, the number of bytes read is returned
