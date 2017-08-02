@@ -215,8 +215,10 @@ static int write_keepalive(int spi_fd, int sockfd, int keepalive_op,
 	/* Sends keep alive packet */
 	err = phy_write(spi_fd, &p, sizeof(*opdu) + sizeof(*llctrl) +
 							sizeof(*llkeepalive));
-	if (err < 0)
+	if (err < 0) {
+		printf("FAIL KEEPALIVE\n");
 		return err;
+	}
 
 	return 0;
 }
@@ -470,13 +472,6 @@ static int read_raw(int spi_fd, int sockfd)
 							llctrl->payload;
 			lldc = (struct nrf24_ll_disconnect *) llctrl->payload;
 
-			char src[32], dst[32];
-
-			nrf24_mac2str(&llkeepalive->src_addr.address.uint64, src);
-			nrf24_mac2str(&llkeepalive->dst_addr.address.uint64, dst);
-
-			printf(" %s > %s\n", src, dst);
-
 			if (llctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_REQ &&
 				llkeepalive->src_addr.address.uint64 ==
 				peers[sockfd-1].mac.address.uint64 &&
@@ -487,9 +482,17 @@ static int read_raw(int spi_fd, int sockfd)
 					peers[sockfd-1].mac,
 					mac_local);
 			} else if (llctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_RSP) {
+
+				char src[32], dst[32];
+
+				nrf24_mac2str(&llkeepalive->src_addr.address.uint64, src);
+				nrf24_mac2str(&llkeepalive->dst_addr.address.uint64, dst);
+
 				printf("KEEPALIVE RSP\n");
+				printf(" %s > %s\n", src, dst);
+
 				/* Resets the counter */
-				//peers[sockfd-1].keepalive = 1;
+				peers[sockfd-1].keepalive = 1;
 			}
 
 			/* If packet is disconnect request */
@@ -551,6 +554,8 @@ static int read_raw(int spi_fd, int sockfd)
 				peers[sockfd-1].offset_rx, ipdu->payload, plen);
 			peers[sockfd-1].offset_rx += plen;
 			peers[sockfd-1].seqnumber_rx++;
+
+			printf("SEND DATA\n");
 
 			/* If is DATA_END then put in rx buffer */
 			if (ipdu->lid == NRF24_PDU_LID_DATA_END) {
