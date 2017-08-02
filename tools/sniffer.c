@@ -271,13 +271,14 @@ int main(int argc, char *argv[])
 		/* Open pipe 1 */
 		adrrp.pipe = 1;
 		adrrp.ack = false;
-		adrrp.aa[0] = '01';
-		adrrp.aa[1] = 'b2';
-		adrrp.aa[2] = '80';
-		adrrp.aa[3] = 'aa';
-		adrrp.aa[4] = 'f0';
 		memcpy(adrrp.aa, aa_pipes[1], sizeof(adrrp.aa));
 		phy_ioctl(cli_fd, NRF24_CMD_SET_PIPE, &adrrp);
+		printf("  CH: %d AA: %02x%02x%02x%02x%02x\n",
+			adrrp.aa[0],
+			adrrp.aa[1],
+			adrrp.aa[2],
+			adrrp.aa[3],
+			adrrp.aa[4]);
 		listen_raw();
 	}
 

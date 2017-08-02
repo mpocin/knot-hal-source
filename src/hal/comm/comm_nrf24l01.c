@@ -239,6 +239,7 @@ static int check_keepalive(int spi_fd, int sockfd)
 
 	peers[sockfd-1].keepalive++;
 
+	printf("KEEPALIVE REQ\n");
 	/* Sends keepalive packet */
 	return write_keepalive(spi_fd, sockfd,
 			      NRF24_LL_CRTL_OP_KEEPALIVE_REQ,
@@ -469,6 +470,13 @@ static int read_raw(int spi_fd, int sockfd)
 							llctrl->payload;
 			lldc = (struct nrf24_ll_disconnect *) llctrl->payload;
 
+			char src[32], dst[32];
+
+			nrf24_mac2str(&llkeepalive->src_addr.address.uint64, src);
+			nrf24_mac2str(&llkeepalive->dst_addr.address.uint64, dst);
+
+			printf(" %s > %s\n", src, dst);
+
 			if (llctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_REQ &&
 				llkeepalive->src_addr.address.uint64 ==
 				peers[sockfd-1].mac.address.uint64 &&
@@ -479,13 +487,15 @@ static int read_raw(int spi_fd, int sockfd)
 					peers[sockfd-1].mac,
 					mac_local);
 			} else if (llctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_RSP) {
+				printf("KEEPALIVE RSP\n");
 				/* Resets the counter */
-				peers[sockfd-1].keepalive = 1;
+				//peers[sockfd-1].keepalive = 1;
 			}
 
 			/* If packet is disconnect request */
 			else if (llctrl->opcode == NRF24_LL_CRTL_OP_DISCONNECT &&
 							mgmt.len_rx == 0) {
+				printf("DISC RESQ\n");
 				mgmtev_hdr = (struct mgmt_nrf24_header *)
 								mgmt.buffer_rx;
 				mgmtev_dc = (struct mgmt_evt_nrf24_disconnected *)
@@ -662,6 +672,7 @@ static void running(void)
 	case START_RAW:
 		/* Set channel to data channel */
 		phy_ioctl(driverIndex, NRF24_CMD_SET_CHANNEL, &channel_raw);
+		//printf("DRIVER: %d, CHANNEL: %d", driverIndex, channel_raw);
 		/* Start timeout */
 		start = hal_time_ms();
 
@@ -690,6 +701,7 @@ static void running(void)
 			if (check_keepalive(driverIndex, sockIndex) == -ETIMEDOUT &&
 				mgmt.len_rx == 0) {
 
+				printf("CHK KEEP TIMEOUT\n");
 				mgmtev_hdr = (struct mgmt_nrf24_header *)
 								mgmt.buffer_rx;
 				mgmtev_dc = (struct mgmt_evt_nrf24_disconnected *)
