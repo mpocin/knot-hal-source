@@ -114,6 +114,7 @@ struct nrf24_ll_crtl_pdu {
 struct nrf24_ll_keepalive {
 	struct nrf24_mac src_addr;	/* Source address */
 	struct nrf24_mac dst_addr;	/* Destination address */
+	int counter;
 } __attribute__ ((packed));
 
 

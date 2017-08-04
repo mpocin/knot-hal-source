@@ -53,8 +53,10 @@ static ssize_t nrf24l01_write(int spi_fd, const void *buffer, size_t len)
 	}
 
 	/*Transmission failed/ack wasnt received*/
-	if (err < 0)
+	if (err < 0) {
+		printf("ACK FAILED\n");
 		return err;
+	}
 
 	/*
 	 * The radio do not receive and send at the same time

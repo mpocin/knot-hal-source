@@ -212,6 +212,10 @@ static int write_keepalive(int spi_fd, int sockfd, int keepalive_op,
 	/* src and dst address to keepalive */
 	llkeepalive->dst_addr.address.uint64 = dst.address.uint64;
 	llkeepalive->src_addr.address.uint64 = src.address.uint64;
+	llkeepalive->counter = peers[sockfd-1].keepalive;
+
+	printf("COUNTER: %d\n", llkeepalive->counter);
+
 	/* Sends keep alive packet */
 	err = phy_write(spi_fd, &p, sizeof(*opdu) + sizeof(*llctrl) +
 							sizeof(*llkeepalive));
@@ -242,6 +246,7 @@ static int check_keepalive(int spi_fd, int sockfd)
 	peers[sockfd-1].keepalive++;
 
 	printf("KEEPALIVE REQ\n");
+
 	/* Sends keepalive packet */
 	return write_keepalive(spi_fd, sockfd,
 			      NRF24_LL_CRTL_OP_KEEPALIVE_REQ,
@@ -453,6 +458,7 @@ static int read_raw(int spi_fd, int sockfd)
 
 	p.pipe = sockfd;
 	p.payload[0] = 0;
+
 	/*
 	 * Reads the data while to exist,
 	 * on success, the number of bytes read is returned
