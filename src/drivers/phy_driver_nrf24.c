@@ -35,24 +35,17 @@ const uint8_t broadcast_addr[5] = {0x8D, 0xD9, 0xBE, 0x96, 0xDE};
 static ssize_t nrf24l01_write(int spi_fd, const void *buffer, size_t len)
 {
 	int err;
-	uint8_t rt;
 	struct nrf24_io_pack *p = (struct nrf24_io_pack *) buffer;
 
 	/* Puts the radio in TX mode  enabling Acknowledgment */
 	nrf24l01_set_ptx(spi_fd, p->pipe);
 
 	/* Transmits the data */
-	for (rt=0; rt<RETRANSMIT_MAX; rt++) {
-		nrf24l01_ptx_data(spi_fd, (void *)p->payload, len);
+	nrf24l01_ptx_data(spi_fd, (void *)p->payload, len);
 
-		/* Waits for ACK */
-		err = nrf24l01_ptx_wait_datasent(spi_fd);
+	/* Waits for ACK */
+	err = nrf24l01_ptx_wait_datasent(spi_fd);
 
-		if (err == 0)
-			rt = RETRANSMIT_MAX;
-	}
-
-	/*Transmission failed/ack wasnt received*/
 	if (err < 0) {
 		printf("ACK FAILED\n");
 		return err;
