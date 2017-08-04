@@ -212,9 +212,6 @@ static int write_keepalive(int spi_fd, int sockfd, int keepalive_op,
 	/* src and dst address to keepalive */
 	llkeepalive->dst_addr.address.uint64 = dst.address.uint64;
 	llkeepalive->src_addr.address.uint64 = src.address.uint64;
-	llkeepalive->counter = peers[sockfd-1].keepalive;
-
-	printf("COUNTER: %d\n", llkeepalive->counter);
 
 	/* Sends keep alive packet */
 	err = phy_write(spi_fd, &p, sizeof(*opdu) + sizeof(*llctrl) +
@@ -421,11 +418,14 @@ static int write_raw(int spi_fd, int sockfd)
 
 		/* Send packet */
 		err = phy_write(spi_fd, &p, plen + DATA_HDR_SIZE);
+
+		printf("SEND DATA\n");
 		/*
 		 * If write error then reset tx len
 		 * and sequence number
 		 */
 		if (err < 0) {
+			printf("FAIL SEND DATA\n");
 			peers[sockfd-1].len_tx = 0;
 			peers[sockfd-1].seqnumber_tx = 0;
 			return err;
@@ -561,7 +561,7 @@ static int read_raw(int spi_fd, int sockfd)
 			peers[sockfd-1].offset_rx += plen;
 			peers[sockfd-1].seqnumber_rx++;
 
-			printf("SEND DATA\n");
+			printf("READ DATA\n");
 
 			/* If is DATA_END then put in rx buffer */
 			if (ipdu->lid == NRF24_PDU_LID_DATA_END) {

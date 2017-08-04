@@ -101,7 +101,7 @@ struct nrf24_ll_crtl_pdu {
 } __attribute__ ((packed));
 
 
-#define NRF24_KEEPALIVE_SEND_MS		512
+#define NRF24_KEEPALIVE_SEND_MS		1024
 #define NRF24_KEEPALIVE_TIMEOUT_MS	(10 * NRF24_KEEPALIVE_SEND_MS)
 
 /*
@@ -114,7 +114,6 @@ struct nrf24_ll_crtl_pdu {
 struct nrf24_ll_keepalive {
 	struct nrf24_mac src_addr;	/* Source address */
 	struct nrf24_mac dst_addr;	/* Destination address */
-	int counter;
 } __attribute__ ((packed));
 
 
