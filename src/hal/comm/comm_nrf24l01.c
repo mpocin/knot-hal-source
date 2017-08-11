@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 #ifdef ARDUINO
 #include "hal/avr_errno.h"
@@ -144,6 +145,13 @@ enum {
 	TIMEOUT_INTERVAL
 };
 
+static void timestamp()
+{
+	time_t ltime; /* calendar time */
+	ltime=time(NULL); /* get current cal time */
+	printf("%s",asctime( localtime(&ltime) ) );
+}
+
 /* Local functions */
 static inline int alloc_pipe(void)
 {
@@ -215,8 +223,11 @@ static int write_keepalive(int spi_fd, int sockfd, int keepalive_op,
 	/* Sends keep alive packet */
 	err = phy_write(spi_fd, &p, sizeof(*opdu) + sizeof(*llctrl) +
 							sizeof(*llkeepalive));
-	if (err < 0)
+
+	if (err < 0) {
+		printf("FAIL KEEPALIVE\n");
 		return err;
+	}
 
 	return 0;
 }
@@ -239,6 +250,7 @@ static int check_keepalive(int spi_fd, int sockfd)
 
 	peers[sockfd-1].keepalive++;
 
+	printf("KEEPALIVE REQ\n");
 	/* Sends keepalive packet */
 	return write_keepalive(spi_fd, sockfd,
 			      NRF24_LL_CRTL_OP_KEEPALIVE_REQ,
@@ -479,6 +491,8 @@ static int read_raw(int spi_fd, int sockfd)
 					peers[sockfd-1].mac,
 					mac_local);
 			} else if (llctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_RSP) {
+				printf("KEEPALIVE RSP\n");
+				timestamp();
 				/* Resets the counter */
 				peers[sockfd-1].keepalive = 1;
 			}
@@ -689,6 +703,9 @@ static void running(void)
 
 			if (check_keepalive(driverIndex, sockIndex) == -ETIMEDOUT &&
 				mgmt.len_rx == 0) {
+
+				printf("CHK KEEP TIMEOUT\n");
+				timestamp();
 
 				mgmtev_hdr = (struct mgmt_nrf24_header *)
 								mgmt.buffer_rx;

@@ -31,7 +31,7 @@ static const uint8_t PROGMEM broadcast_addr[5] = {0x8D, 0xD9, 0xBE, 0x96, 0xDE};
 #else
 const uint8_t broadcast_addr[5] = {0x8D, 0xD9, 0xBE, 0x96, 0xDE};
 #endif
-	
+
 static ssize_t nrf24l01_write(int spi_fd, const void *buffer, size_t len)
 {
 	int err;
@@ -46,8 +46,10 @@ static ssize_t nrf24l01_write(int spi_fd, const void *buffer, size_t len)
 	/* Waits for ACK */
 	err = nrf24l01_ptx_wait_datasent(spi_fd);
 
-	if (err < 0)
-		return err;
+	if (err < 0) {
+		printf("ACK FAILED\n");
+ 		return err;
+	}
 	/*
 	 * The radio do not receive and send at the same time
 	 * It's a good practice to put the radio in RX mode
