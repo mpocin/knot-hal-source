@@ -148,8 +148,8 @@ enum {
 static void timestamp()
 {
 	time_t ltime; /* calendar time */
-	ltime=time(NULL); /* get current cal time */
-	printf("%s",asctime( localtime(&ltime) ) );
+	ltime = time(NULL); /* get current cal time */
+	printf("%s", asctime(localtime(&ltime)));
 }
 
 /* Local functions */
@@ -251,6 +251,7 @@ static int check_keepalive(int spi_fd, int sockfd)
 	peers[sockfd-1].keepalive++;
 
 	printf("KEEPALIVE REQ\n");
+	timestamp();
 	/* Sends keepalive packet */
 	return write_keepalive(spi_fd, sockfd,
 			      NRF24_LL_CRTL_OP_KEEPALIVE_REQ,
