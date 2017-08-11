@@ -705,7 +705,7 @@ static void running(void)
 			if (check_keepalive(driverIndex, sockIndex) == -ETIMEDOUT &&
 				mgmt.len_rx == 0) {
 
-				printf("CHK KEEP TIMEOUT\n");
+				printf("CHK TIMEOUT\n");
 				timestamp();
 
 				mgmtev_hdr = (struct mgmt_nrf24_header *)
