@@ -501,6 +501,7 @@ static int read_raw(int spi_fd, int sockfd)
 			/* If packet is disconnect request */
 			else if (llctrl->opcode == NRF24_LL_CRTL_OP_DISCONNECT &&
 							mgmt.len_rx == 0) {
+				printf("DISC RESQ\n");
 				mgmtev_hdr = (struct mgmt_nrf24_header *)
 								mgmt.buffer_rx;
 				mgmtev_dc = (struct mgmt_evt_nrf24_disconnected *)
