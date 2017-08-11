@@ -807,6 +807,7 @@ done:
 							strerror(nsk), nsk);
 			return nsk;
 		}
+		printf("THING CONNECTING...\n");
 
 		/* Upper layer socket: knotd */
 		if (inet_address.s_addr)
