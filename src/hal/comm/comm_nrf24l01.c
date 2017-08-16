@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 #ifdef ARDUINO
 #include "hal/avr_errno.h"
@@ -124,8 +125,8 @@ static int driverIndex = -1;
  * 38 and 39). Suggested nRF24 channels are channels 22 (2422 MHz), 50
  * (2450 MHz), 74 (2474 MHz), 76 (2476 MHz) and 97 (2497 MHz).
  */
-static int channel_mgmt = 76;
-static int channel_raw = 22;
+static int channel_mgmt = 79;
+static int channel_raw = 50;
 
 static uint16_t window_bcast = 5;	/* ms */
 static uint16_t interval_bcast = 6;	/* ms */
@@ -143,6 +144,13 @@ enum {
 	STANDBY,
 	TIMEOUT_INTERVAL
 };
+
+static void timestamp()
+{
+	time_t ltime; /* calendar time */
+	ltime = time(NULL); /* get current cal time */
+	printf("%s", asctime(localtime(&ltime)));
+}
 
 /* Local functions */
 static inline int alloc_pipe(void)
@@ -215,8 +223,11 @@ static int write_keepalive(int spi_fd, int sockfd, int keepalive_op,
 	/* Sends keep alive packet */
 	err = phy_write(spi_fd, &p, sizeof(*opdu) + sizeof(*llctrl) +
 							sizeof(*llkeepalive));
-	if (err < 0)
+	if (err < 0) {
+		timestamp();
+		printf("SEND KEEPALIVE FAIL\n");
 		return err;
+	}
 
 	return 0;
 }
@@ -689,6 +700,9 @@ static void running(void)
 
 			if (check_keepalive(driverIndex, sockIndex) == -ETIMEDOUT &&
 				mgmt.len_rx == 0) {
+
+				timestamp();
+				printf("CHK KEEP TIMEOUT\n");
 
 				mgmtev_hdr = (struct mgmt_nrf24_header *)
 								mgmt.buffer_rx;
