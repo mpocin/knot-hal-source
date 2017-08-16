@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 #ifdef ARDUINO
 #include "hal/avr_errno.h"
@@ -144,6 +145,13 @@ enum {
 	TIMEOUT_INTERVAL
 };
 
+static void timestamp()
+{
+       time_t ltime; /* calendar time */
+       ltime = time(NULL); /* get current cal time */
+       printf("%s", asctime(localtime(&ltime)));
+}
+
 /* Local functions */
 static inline int alloc_pipe(void)
 {
@@ -215,8 +223,12 @@ static int write_keepalive(int spi_fd, int sockfd, int keepalive_op,
 	/* Sends keep alive packet */
 	err = phy_write(spi_fd, &p, sizeof(*opdu) + sizeof(*llctrl) +
 							sizeof(*llkeepalive));
-	if (err < 0)
+
+	if (err < 0) {
+		timestamp();
+		printf("KEEPALIVE FAIL\n");
 		return err;
+	}
 
 	return 0;
 }
@@ -689,6 +701,9 @@ static void running(void)
 
 			if (check_keepalive(driverIndex, sockIndex) == -ETIMEDOUT &&
 				mgmt.len_rx == 0) {
+
+				timestamp();
+	                        printf("CHK KEEP TIMEOUT\n");
 
 				mgmtev_hdr = (struct mgmt_nrf24_header *)
 								mgmt.buffer_rx;
