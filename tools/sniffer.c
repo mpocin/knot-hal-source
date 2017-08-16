@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <glib.h>
 #include <sys/time.h>
+#include <time.h>
 #include "hal/nrf24.h"
 
 #include "phy_driver.h"
@@ -39,6 +40,13 @@ static void sig_term(int sig)
 	quit = 1;
 }
 
+static void timestamp()
+{
+	time_t ltime; /* calendar time */
+	ltime = time(NULL); /* get current cal time */
+	printf("%s", asctime(localtime(&ltime)));
+}
+
 static void decode_raw(unsigned long sec, unsigned long usec,
 					const uint8_t *payload, ssize_t plen)
 {
@@ -54,14 +62,15 @@ static void decode_raw(unsigned long sec, unsigned long usec,
 		ctrl = (struct nrf24_ll_crtl_pdu *) ipdu->payload;
 		kpalive = (struct nrf24_ll_keepalive *) ctrl->payload;
 
-		if (ctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_REQ)
-			printf("%05ld.%06ld nRF24: CRTL | Keep Alive Req " \
-						"(0x%02x) plen:%zd\n", sec,
-						usec, ctrl->opcode, plen);
-		else
-			printf("%05ld.%06ld nRF24: CRTL | Keep Alive Rsp " \
-						"(0x%02x) plen:%zd\n", sec,
-						usec, ctrl->opcode, plen);
+		if (ctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_REQ) {
+			timestamp();
+			printf("nRF24: CRTL | Keep Alive Req " \
+						"(0x%02x) plen:%zd\n", ctrl->opcode, plen);
+		} else {
+			timestamp();
+			printf("nRF24: CRTL | Keep Alive Rsp " \
+						"(0x%02x) plen:%zd\n", ctrl->opcode, plen);
+		}
 
 		nrf24_mac2str(&kpalive->src_addr, src);
 		nrf24_mac2str(&kpalive->dst_addr, dst);
@@ -69,8 +78,9 @@ static void decode_raw(unsigned long sec, unsigned long usec,
 		break;
 	case NRF24_PDU_LID_DATA_FRAG:
 	case NRF24_PDU_LID_DATA_END:
-		printf("%05ld.%06ld  nRF24: Data | SEQ:0x%02x plen:%zd\n",
-					sec, usec, ipdu->nseq, plen);
+		timestamp();
+		printf("nRF24: Data | SEQ:0x%02x plen:%zd\n",
+					ipdu->nseq, plen);
 		printf("  ");
 		for (i = 0; i < plen; i++)
 			printf("%02x", payload[i]);
@@ -78,8 +88,9 @@ static void decode_raw(unsigned long sec, unsigned long usec,
 		printf("\n");
 		break;
 	default:
-		printf("%05ld.%06ld nRF24: Unknown (0x%02x) plen:%zd\n",
-						sec, usec, ipdu->lid, plen);
+		timestamp();
+		printf("nRF24: Unknown (0x%02x) plen:%zd\n",
+						ipdu->lid, plen);
 		printf("  ");
 		for (i = 0; i < plen; i++)
 			printf("%02x", payload[i]);
@@ -108,8 +119,8 @@ static void decode_mgmt(unsigned long sec, unsigned long usec,
 		if (option_mac && strcmp(option_mac, src) != 0)
 			break;
 
-		printf("%05ld.%06ld nRF24: Beacon(0x%02x|P) plen:%zd\n",
-		       sec, usec, ipdu->type, plen);
+		timestamp();
+		printf("nRF24: Beacon(0x%02x|P) plen:%zd\n", ipdu->type, plen);
 		printf("  %s %s\n", src, ll->name);
 		break;
 		/* If is a connect request type */
@@ -131,8 +142,9 @@ static void decode_mgmt(unsigned long sec, unsigned long usec,
 		phy_ioctl(cli_fd, NRF24_CMD_SET_PIPE, &adrrp);
 
 		/* Header type is a connect request type */
-		printf("%05ld.%06ld nRF24: Connect Req(0x%02x) plen:%zd\n",
-					       sec, usec, ipdu->type, plen);
+		timestamp();
+		printf("nRF24: Connect Req(0x%02x) plen:%zd\n",
+					       ipdu->type, plen);
 
 		printf("  %s > %s\n", src, dst);
 		printf("  CH: %d AA: %02x%02x%02x%02x%02x\n",
@@ -144,8 +156,9 @@ static void decode_mgmt(unsigned long sec, unsigned long usec,
 		       llcn->aa[4]);
 		break;
 	default:
-		printf("%05ld.%06ld nRF24: Unknown (0x%02x) plen:%zd\n",
-						sec, usec, ipdu->type, plen);
+		timestamp();
+		printf("nRF24: Unknown (0x%02x) plen:%zd\n",
+						ipdu->type, plen);
 		printf("  ");
 		for (i = 0; i < plen; i++)
 			printf("%02x", payload[i]);
