@@ -229,6 +229,12 @@ static int write_keepalive(int spi_fd, int sockfd, int keepalive_op,
 		return err;
 	}
 
+	char src1[32], dst1[32];
+	nrf24_mac2str(&src.address.uint64, src1);
+	nrf24_mac2str(&dst.address.uint64, dst1);
+	timestamp();
+	printf("REQ: %s > %s\n", src1, dst1);
+
 	return 0;
 }
 
@@ -490,6 +496,11 @@ static int read_raw(int spi_fd, int sockfd)
 					peers[sockfd-1].mac,
 					mac_local);
 			} else if (llctrl->opcode == NRF24_LL_CRTL_OP_KEEPALIVE_RSP) {
+				char src[32], dst[32];
+				nrf24_mac2str(&peers[sockfd-1].mac.address.uint64, src);
+				nrf24_mac2str(&mac_local.address.uint64, dst);
+				timestamp();
+				printf("RSP: %s > %s\n", src, dst);
 				/* Resets the counter */
 				peers[sockfd-1].keepalive = 1;
 			}
