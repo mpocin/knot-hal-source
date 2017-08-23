@@ -29,11 +29,19 @@
 #include "phy_driver_nrf24.h"
 #include "nrf24l01_ll.h"
 
+
+#define PIPE1_WINDOW 15
+#define PIPE2_WINDOW 18
+#define PIPE3_WINDOW 22
+#define PIPE4_WINDOW 26
+#define PIPE5_WINDOW 30
+
+
 #define _MIN(a, b)		((a) < (b) ? (a) : (b))
 #define DATA_SIZE 128
 #define MGMT_SIZE 32
 #define MGMT_TIMEOUT 10
-#define RAW_TIMEOUT 60
+static uint8_t raw_timeout = 10;
 
 #define SET_BIT(val, idx)	((val) |= 1 << (idx))
 #define CLR_BIT(val, idx)	((val) &= ~(1 << (idx)))
@@ -153,6 +161,25 @@ static void timestamp()
 }
 
 /* Local functions */
+static uint8_t new_raw_time()
+{
+	uint8_t new_time = 0;
+
+	if CHK_BIT(pipe_bitmask, 1)
+		new_time+= PIPE1_WINDOW;
+	if CHK_BIT(pipe_bitmask, 2)
+		new_time+= PIPE2_WINDOW;
+	if CHK_BIT(pipe_bitmask, 3)
+		new_time+= PIPE3_WINDOW;
+	if CHK_BIT(pipe_bitmask, 4)
+		new_time+= PIPE4_WINDOW;
+	if CHK_BIT(pipe_bitmask, 5)
+		new_time+= PIPE5_WINDOW;
+
+	return new_time;
+}
+
+
 static inline int alloc_pipe(void)
 {
 	uint8_t i;
@@ -684,7 +711,7 @@ static void running(void)
 		/* Start broadcast or scan? */
 		if (CHK_BIT(pipe_bitmask, 0)) {
 			/* Check if 60ms timeout occurred */
-			if (hal_timeout(hal_time_ms(), start, RAW_TIMEOUT) > 0)
+			if (hal_timeout(hal_time_ms(), start, raw_timeout) > 0)
 				state = START_MGMT;
 		}
 
@@ -719,12 +746,13 @@ static void running(void)
 
 				/* TODO: Send disconnect packet to slave */
 
-				/* Free pipe */
+				/* Free pipe & resize raw time */
 				CLR_BIT(pipe_bitmask, peers[sockIndex - 1].pipe);
 				peers[sockIndex - 1].pipe = -1;
 				peers[sockIndex - 1].keepalive = 0;
 				phy_ioctl(driverIndex, NRF24_CMD_RESET_PIPE,
 								&sockIndex);
+				raw_timeout = new_raw_time();
 			}
 		}
 
@@ -868,10 +896,11 @@ int hal_comm_close(int sockfd)
 			/* Slave side */
 			write_disconnect(driverIndex, sockfd,
 					peers[sockfd-1].mac, mac_local);
-		/* Free pipe */
+		/* Free pipe & & resize raw time */
 		peers[sockfd-1].pipe = -1;
 		CLR_BIT(pipe_bitmask, peers[sockfd - 1].pipe);
 		phy_ioctl(driverIndex, NRF24_CMD_RESET_PIPE, &sockfd);
+		raw_timeout = new_raw_time();
 		/* Disable to send keep alive request */
 		peers[sockfd-1].keepalive = 0;
 	}
@@ -982,6 +1011,7 @@ int hal_comm_accept(int sockfd, void *addr)
 		mgmtev_cn->dst.address.uint64 != mac_local.address.uint64)
 		return -EAGAIN;
 
+
 	pipe = alloc_pipe();
 	/* If not pipe available */
 	if (pipe < 0)
@@ -996,6 +1026,8 @@ int hal_comm_accept(int sockfd, void *addr)
 	p_addr.ack = 1;
 	/*open pipe*/
 	phy_ioctl(driverIndex, NRF24_CMD_SET_PIPE, &p_addr);
+	/*Resize data channel time*/
+	raw_timeout = new_raw_time();
 
 	/* Source address for keepalive message */
 	peers[pipe-1].mac.address.uint64 =
