@@ -135,8 +135,8 @@ static int driverIndex = -1;
  * 38 and 39). Suggested nRF24 channels are channels 22 (2422 MHz), 50
  * (2450 MHz), 74 (2474 MHz), 76 (2476 MHz) and 97 (2497 MHz).
  */
-static int channel_mgmt = 76;
-static int channel_raw = 22;
+static int channel_mgmt = 79;
+static int channel_raw = 50;
 
 static uint16_t window_bcast = 5;	/* ms */
 static uint16_t interval_bcast = 6;	/* ms */
@@ -159,7 +159,7 @@ enum {
 static uint8_t new_raw_time()
 {
 	uint8_t new_time = 0;
-	
+
 	if CHK_BIT(pipe_bitmask, 1)
 		new_time+= PIPE1_WINDOW;
 	if CHK_BIT(pipe_bitmask, 2)
@@ -701,7 +701,7 @@ static void running(void)
 
 		/* Start broadcast or scan? */
 		if (CHK_BIT(pipe_bitmask, 0)) {
-			
+
 			if (things_connected < 5){
 				/* Check  raw timeout and rt time stamp*/
 				if ( hal_timeout(hal_time_ms(), start, raw_timeout) > 0 &&
