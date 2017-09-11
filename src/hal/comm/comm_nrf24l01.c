@@ -705,10 +705,19 @@ static void running(void)
 		if (listen)
 			presence_connect(driverIndex);
 
-		/* Peers connected? */
-		if (pipe_bitmask & PIPE_RAW_BITMASK) {
-			if (hal_timeout(hal_time_ms(), start, MGMT_TIMEOUT) > 0)
+		/* Device is Thing*/
+		if (CONNECTION_COUNTER == 1){
+			/* Only switch to MGMT if loses connection*/
+			if ((CHK_BIT(pipe_bitmask, 1)))
 				state = START_RAW;
+
+		/* Device is Gateway*/
+		} else {
+			/* Peers connected? */
+			if (pipe_bitmask & PIPE_RAW_BITMASK) {
+				if (hal_timeout(hal_time_ms(), start, MGMT_TIMEOUT) > 0)
+					state = START_RAW;
+			}
 		}
 		break;
 
@@ -723,12 +732,21 @@ static void running(void)
 		break;
 	case RAW:
 
-		/* Start broadcast or scan? */
-		if (CHK_BIT(pipe_bitmask, 0)) {
-			/*Checks for RAW timeout and RTs offset time*/
-			if (hal_timeout(hal_time_ms(), start, raw_timeout) > 0 &&
-			    hal_timeout(hal_time_ms(), rt_stamp, (rt_offset)) > 0)
+		/* Device is Thing*/
+		if (CONNECTION_COUNTER == 1){
+			/* Only switch to MGMT if loses connection*/
+			if (!(CHK_BIT(pipe_bitmask, 1)))
 				state = START_MGMT;
+
+		/* Device is Gateway*/
+		} else {
+			/* Start broadcast or scan? */
+			if (CHK_BIT(pipe_bitmask, 0)) {
+				/*Checks for RAW timeout and RTs offset time*/
+				if (hal_timeout(hal_time_ms(), start, raw_timeout) > 0 &&
+				    hal_timeout(hal_time_ms(), rt_stamp, (rt_offset)) > 0)
+					state = START_MGMT;
+			}
 		}
 
 		/* Check if pipe is allocated */
