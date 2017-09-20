@@ -274,8 +274,8 @@ static int write_disconnect(int spi_fd, int sockfd, struct nrf24_mac dst,
 		+ sizeof(struct nrf24_ll_crtl_pdu)
 		+ sizeof(struct nrf24_ll_disconnect);
 
-	DBG_SEND(&mac_local, &peers[sockfd - 1].mac,
-				(const uint8_t *) opdu, len);
+	//DBG_SEND(&mac_local, &peers[sockfd - 1].mac,
+	//			(const uint8_t *) opdu, len);
 
 	err = phy_write(spi_fd, &p, len);
 	if (err < 0)
@@ -307,8 +307,8 @@ static int write_keepalive(int spi_fd, int sockfd, int keepalive_op,
 	/* Sends keep alive packet */
 	len = sizeof(*opdu) + sizeof(*llctrl) + sizeof(*llkeepalive);
 
-	DBG_SEND(&mac_local, &peers[sockfd - 1].mac,
-					(const uint8_t *) opdu, len);
+	//DBG_SEND(&mac_local, &peers[sockfd - 1].mac,
+	//				(const uint8_t *) opdu, len);
 
 	err = phy_write(spi_fd, &p, len);
 	if (err < 0)
@@ -517,8 +517,8 @@ static int write_raw(int spi_fd, int sockfd)
 		memcpy(opdu->payload, peers[sockfd-1].buffer_tx +
 			(peers[sockfd-1].len_tx - left), plen);
 
-		DBG_SEND(&mac_local, &peers[sockfd - 1].mac,
-				 (const uint8_t *) opdu, plen + DATA_HDR_SIZE);
+		//DBG_SEND(&mac_local, &peers[sockfd - 1].mac,
+		//		 (const uint8_t *) opdu, plen + DATA_HDR_SIZE);
 
 		/* Send packet */
 		err = phy_write(spi_fd, &p, plen + DATA_HDR_SIZE);
@@ -566,7 +566,7 @@ static int read_raw(int spi_fd, int sockfd)
 	while ((ilen = phy_read(spi_fd, &p, NRF24_MTU)) > 0) {
 
 		/* Initiator/acceptor: reset anchor */
-		DBG_RECV(&mac_local, &peers[sockfd - 1].mac, (const uint8_t *) ipdu, ilen);
+		//DBG_RECV(&mac_local, &peers[sockfd - 1].mac, (const uint8_t *) ipdu, ilen);
 
 		peers[sockfd-1].keepalive_anchor = hal_time_ms();
 
