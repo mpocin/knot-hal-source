@@ -482,7 +482,7 @@ int8_t nrf24l01_ptx_wait_datasent(int8_t spi_fd)
  * See page 33 of nRF24L01_Product_Specification_v2_0.pdf
  * Receive the value of pipe 0 addr
  */
-int8_t nrf24l01_set_prx(int8_t spi_fd, uint8_t *pipe0_addr)
+int8_t nrf24l01_set_prx(int8_t spi_fd)
 {
 	/*
 	 * The addr of pipe 0 is necessary to avoid
@@ -491,7 +491,7 @@ int8_t nrf24l01_set_prx(int8_t spi_fd, uint8_t *pipe0_addr)
 	 * can be different.
 	 */
 	set_standby1();
-	set_address_pipe(spi_fd, NRF24_RX_ADDR_P0, pipe0_addr);
+
 	/* RX Settings */
 	nrf24reg_write(spi_fd, NRF24_STATUS, NRF24_ST_RX_DR);
 	nrf24reg_write(spi_fd, NRF24_CONFIG, nrf24reg_read(spi_fd, NRF24_CONFIG)
